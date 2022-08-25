@@ -21,12 +21,12 @@ class PersonalInfo(models.Model):
     city = models.CharField(max_length=30, blank=True, null=True)
     county = models.CharField(max_length=30, blank=True, null=True)
     state = models.CharField(max_length=30, blank=True, null=True)
-    zipcode = models.IntegerField(blank=True, null=True)
+    zipcode = models.CharField(max_length=10, blank=True, null=True)
 
     # contact information
     email_validator = EmailValidator()
     email = models.EmailField(validators=[email_validator], blank=True, null=True)
-    
+
     phone_validator = RegexValidator(
         regex=r'^\+?1?\d{9,15}$',
         message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed."
