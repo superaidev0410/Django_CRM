@@ -39,5 +39,6 @@ class PersonalInfo(models.Model):
         """
         check validation
         """
-        if (self.first_name == '' or self.last_name == '') and self.email == '' and self.phone == '':
+        print(self.first_name, self.last_name, self.email, self.phone)
+        if (self.first_name == None or self.last_name == None) and self.email == None and self.phone == None:
             raise ValidationError('At least input first and last name or email address or phone number.')
