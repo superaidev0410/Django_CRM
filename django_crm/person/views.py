@@ -52,7 +52,6 @@ def view_items():
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-
 @api_view(['POST'])
 def update_items(request, pk):
     item = PersonalInfo.objects.get(pk=pk)
