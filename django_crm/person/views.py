@@ -9,7 +9,23 @@ from person.models import PersonalInfo
 # Create your views here.
 @api_view(['POST'])
 def add_items(request):
+    # validating for correct field name
+    for key in request.data.keys():
+        if not key in ('first_name', 'last_name', 'birth_date', 'address1', 'address2', 
+                        'city', 'county', 'state', 'zipcode', 'email', 'phone'):
+            raise serializers.ValidationError(f'{key} is invalid field.')
+
     item = PersonalInfoSerializer(data=request.data)
+
+    # check field existence
+    is_firstname = True if 'first_name' in request.data.keys() and request.data['first_name'] != None else False
+    is_lastname = True if 'last_name' in request.data.keys() and request.data['last_name'] != None else False
+    is_email = True if 'email' in request.data.keys() and request.data['email'] != None else False
+    is_phone = True if 'phone' in request.data.keys() and request.data['phone'] != None else False
+
+    # validating for existence of first name and last name, email and phone
+    if (is_firstname == False or is_lastname == False) and is_email == False and is_phone == False:
+        raise serializers.ValidationError('At least input first and last name or email address or phone number.')
   
     # validating for already existing data
     if PersonalInfo.objects.filter(**request.data).exists():
