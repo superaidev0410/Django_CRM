@@ -50,3 +50,16 @@ def view_items():
         return Response(data)
     else:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(['POST'])
+def update_items(request, pk):
+    item = PersonalInfo.objects.get(pk=pk)
+    data = PersonalInfoSerializer(instance=item, data=request.data)
+  
+    if data.is_valid():
+        data.save()
+        return Response(data.data)
+    else:
+        return Response(status=status.HTTP_404_NOT_FOUND)
