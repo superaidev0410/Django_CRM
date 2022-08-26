@@ -39,7 +39,7 @@ def add_items(request):
 
 
 @api_view(['GET'])
-def view_items(request):
+def view_items():
     
     # checking for the parameters from the URL
     items = PersonalInfo.objects.all()
