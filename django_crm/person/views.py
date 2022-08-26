@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import serializers
@@ -62,3 +62,10 @@ def update_items(request, pk):
         return Response(data.data)
     else:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['DELETE'])
+def delete_items(request, pk):
+    item = get_object_or_404(PersonalInfo, pk=pk)
+    item.delete()
+    return Response(status=status.HTTP_202_ACCEPTED)
