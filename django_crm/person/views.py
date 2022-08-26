@@ -36,12 +36,13 @@ def check_phone(data):
 
 def validate_email_address(email):
     regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+    print(email)
     return re.fullmatch(regex, email)
 
 
 def validate_phone_number(phone):
-    regex=r'^\+?1?\d{9,15}$'
-    return re.fullmath(regex, phone)
+    regex=re.compile(r'^\+?1?\d{9,15}$')
+    return re.fullmatch(regex, phone)
             
 
 # Create your views here.
@@ -50,18 +51,23 @@ def add_items(request):
     # validating for correct field name
     if not check_field(request.data):
         raise serializers.ValidationError(f'Invalid field.')
+    print(request.data)
 
     # validating for existence of first name and last name, email and phone
     if check_name(request.data) + check_email(request.data) + check_phone(request.data) == 0:
         raise serializers.ValidationError('At least input first and last name or email address or phone number.')
+    print(request.data)
     
     # validating for email address
-    if 'email' in request.data.keys() and validate_email_address(request.data['email']):
+    if 'email' in request.data.keys() and not validate_email_address(request.data['email']):
         raise serializers.ValidationError('Invalid email address')
+    print(request.data)
     
     # validating for phone number
-    if 'phone' in request.data.keys() and validate_phone_number(request.data['phone']):
+    if 'phone' in request.data.keys() and not validate_phone_number(request.data['phone']):
         raise serializers.ValidationError("Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+    print(request.data)
+    
 
     item = PersonalInfoSerializer(data=request.data)
   
@@ -97,11 +103,11 @@ def update_items(request, pk):
         raise serializers.ValidationError(f'Invalid field.')
     
     # validating for email address
-    if 'email' in request.data.keys() and validate_email_address(request.data['email']):
+    if 'email' in request.data.keys() and not validate_email_address(request.data['email']):
         raise serializers.ValidationError('Invalid email address')
     
     # validating for phone number
-    if 'phone' in request.data.keys() and validate_phone_number(request.data['phone']):
+    if 'phone' in request.data.keys() and not validate_phone_number(request.data['phone']):
         raise serializers.ValidationError("Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
     
     # update item
