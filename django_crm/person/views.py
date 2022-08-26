@@ -1,31 +1,69 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
 from person.serializers import PersonalInfoSerializer
 from person.models import PersonalInfo
+import re
+
+
+def check_field(data):
+    """ check field name """
+    for key in data.keys():
+        if not key in ('first_name', 'last_name', 'birth_date', 'address1', 'address2', 
+                        'city', 'county', 'state', 'zipcode', 'email', 'phone'):
+            return False
+    return True
+
+
+def check_name(data):
+    """ check existence of first name and last name """
+    is_firstname = True if 'first_name' in data.keys() and data['first_name'] != None else False
+    is_lastname = True if 'last_name' in data.keys() and data['last_name'] != None else False
+    return is_firstname + is_lastname == 2
+
+
+def check_email(data):
+    """ check existence """
+    return True if 'email' in data.keys() and data['email'] != None else False
+
+
+def check_phone(data):
+    """ check existence"""
+    return True if 'phone' in data.keys() and data['phone'] != None else False
+
+
+def validate_email_address(email):
+    regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+    return re.fullmatch(regex, email)
+
+
+def validate_phone_number(phone):
+    regex=r'^\+?1?\d{9,15}$'
+    return re.fullmath(regex, phone)
+            
 
 # Create your views here.
 @api_view(['POST'])
 def add_items(request):
     # validating for correct field name
-    for key in request.data.keys():
-        if not key in ('first_name', 'last_name', 'birth_date', 'address1', 'address2', 
-                        'city', 'county', 'state', 'zipcode', 'email', 'phone'):
-            raise serializers.ValidationError(f'{key} is invalid field.')
-
-    item = PersonalInfoSerializer(data=request.data)
-
-    # check field existence
-    is_firstname = True if 'first_name' in request.data.keys() and request.data['first_name'] != None else False
-    is_lastname = True if 'last_name' in request.data.keys() and request.data['last_name'] != None else False
-    is_email = True if 'email' in request.data.keys() and request.data['email'] != None else False
-    is_phone = True if 'phone' in request.data.keys() and request.data['phone'] != None else False
+    if not check_field(request.data):
+        raise serializers.ValidationError(f'Invalid field.')
 
     # validating for existence of first name and last name, email and phone
-    if (is_firstname == False or is_lastname == False) and is_email == False and is_phone == False:
+    if check_name(request.data) + check_email(request.data) + check_phone(request.data) == 0:
         raise serializers.ValidationError('At least input first and last name or email address or phone number.')
+    
+    # validating for email address
+    if 'email' in request.data.keys() and validate_email_address(request.data['email']):
+        raise serializers.ValidationError('Invalid email address')
+    
+    # validating for phone number
+    if 'phone' in request.data.keys() and validate_phone_number(request.data['phone']):
+        raise serializers.ValidationError("Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+
+    item = PersonalInfoSerializer(data=request.data)
   
     # validating for already existing data
     if PersonalInfo.objects.filter(**request.data).exists():
@@ -39,7 +77,7 @@ def add_items(request):
 
 
 @api_view(['GET'])
-def view_items():
+def view_items(request):
     
     # checking for the parameters from the URL
     items = PersonalInfo.objects.all()
@@ -52,8 +90,21 @@ def view_items():
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['POST'])
+@api_view(['PUT'])
 def update_items(request, pk):
+    # validating for correct field name
+    if not check_field(request.data):
+        raise serializers.ValidationError(f'Invalid field.')
+    
+    # validating for email address
+    if 'email' in request.data.keys() and validate_email_address(request.data['email']):
+        raise serializers.ValidationError('Invalid email address')
+    
+    # validating for phone number
+    if 'phone' in request.data.keys() and validate_phone_number(request.data['phone']):
+        raise serializers.ValidationError("Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+    
+    # update item
     item = PersonalInfo.objects.get(pk=pk)
     data = PersonalInfoSerializer(instance=item, data=request.data)
   
