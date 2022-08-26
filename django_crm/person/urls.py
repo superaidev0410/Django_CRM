@@ -1,10 +1,6 @@
-from django.urls import include, path
-from rest_framework import routers
-from person.views import PersonalInfoViewsets
-
-router = routers.DefaultRouter()
-router.register(r'info', PersonalInfoViewsets)
+from django.urls import path
+from person.views import add_items
 
 urlpatterns = [
-   path('', include(router.urls)),
+   path('add/', add_items, name='add-items'),
 ]
