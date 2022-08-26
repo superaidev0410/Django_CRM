@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from models import PersonalInfo
+from person.models import PersonalInfo
 
 
 class PersonalInfoSerializer(serializers.ModelSerializer):
@@ -8,5 +8,5 @@ class PersonalInfoSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = PersonalInfo
-        fields = ('first name', 'last name', 'birth date', 'address1', 'address2', 
+        fields = ('first_name', 'last_name', 'birth_date', 'address1', 'address2', 
                   'city', 'county', 'state', 'zipcode', 'email', 'phone')
